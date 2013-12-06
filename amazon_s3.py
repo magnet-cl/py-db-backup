@@ -19,7 +19,8 @@ class AmazonS3(object):
         """ Establish the connection with amazon. """
         self.s3_conn = S3Connection(access_key, secret_key)
 
-    def upload_file(self, key, filepath, access, keep_original=True):
+    def upload_file(self, key, filepath, access, keep_original=True,
+                    verbose=False):
         """ Uploads a file to Amazon S3
 
         Arguments:
@@ -41,7 +42,8 @@ class AmazonS3(object):
             print str(error)
             return False
         else:
-            print "%s uploaded to amazon s3." % key
+            if verbose:
+                print "%s uploaded to amazon s3." % key
 
         # original file removal
         if not keep_original and os.access(filepath, os.W_OK):
@@ -50,6 +52,7 @@ class AmazonS3(object):
             except (IOError, OSError):
                 print "I/O error, could not remove file."
             else:
-                print "%s (original) removed" % filepath
+                if verbose:
+                    print "%s (original) removed" % filepath
 
         return True
