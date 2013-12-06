@@ -65,20 +65,25 @@ def upload_backup():
     # configuration file
     config = parse_configuration()
 
-    # amazon connection
-    s3 = AmazonS3(
-        config.get('aws', 'access_key'),
-        config.get('aws', 'secret_key'),
-        config.get('aws', 'bucket_name')
-    )
-
     # dump generation
-    key, filepath = generate_backup()
+    dump_name = generate_backup()
 
-    if s3.upload_file(key, filepath, access='private'):
-        print "Successfully uploaded {}".format(key)
+    if dump_name:
+        # amazon connection
+        print "Connecting to Amazon S3."
+        s3 = AmazonS3(
+            config.get('aws', 'access_key'),
+            config.get('aws', 'secret_key'),
+            config.get('aws', 'bucket_name')
+        )
+
+        print "Uploading compressed database dump."
+        if s3.upload_file(dump_name, dump_name, access='private'):
+            print "Successfully uploaded {}".format(dump_name)
+        else:
+            print "An error has ocurred while uploading {}".format(dump_name)
     else:
-        print "An error has ocurred while uploading {}".format(key)
+        print "An error has ocurred while dumping {}".format(dump_name)
 
 
 if __name__ == '__main__':
