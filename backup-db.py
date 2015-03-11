@@ -33,13 +33,14 @@ def generate_backup(config):
 
     # dump name generation
     dump_name = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-    dump_name = "{}/{}.sql".format(dumps_folder, dump_name)
+    dump_name = "{}/{}.dump".format(dumps_folder, dump_name)
 
     # db engine
     db_engine = config.get('db', 'engine')
 
     if db_engine == 'postgresql':
-        pg_dump(config.get('db', 'name'), '-f', dump_name)
+        dump_format = '-Fc'  # custom format
+        pg_dump(dump_format, config.get('db', 'name'), '-f', dump_name)
     else:
         print "Error: DB engine not supported."
         return False
