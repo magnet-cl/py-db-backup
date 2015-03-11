@@ -26,7 +26,7 @@ def generate_backup():
     config = parse_configuration()
 
     # dumps folder creation
-    dumps_folder = "db_dumps"
+    dumps_folder = "{}/cron_db_dumps".format(expanduser('~'))
     try:
         mkpath(dumps_folder)
     except DistutilsFileError:
