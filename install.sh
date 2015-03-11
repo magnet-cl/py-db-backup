@@ -9,3 +9,6 @@ sudo pip install -U pip
 # required packages
 sudo pip install -U boto
 sudo pip install -U sh
+
+# initial config file
+cp config.ini.default config.ini
