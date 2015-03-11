@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # sh
@@ -32,15 +33,16 @@ def generate_backup(config):
         return False
 
     # dump name generation
-    dump_name = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-    dump_name = "{}/{}.dump".format(dumps_folder, dump_name)
+    db_name = config.get('db', 'name')
+    dump_name = strftime("%Y-%m-%d-%H:%M:%S", gmtime())
+    dump_name = "{}/{}-{}.dump".format(dumps_folder, db_name, dump_name)
 
     # db engine
     db_engine = config.get('db', 'engine')
 
     if db_engine == 'postgresql':
         dump_format = '-Fc'  # custom format
-        pg_dump(dump_format, config.get('db', 'name'), '-f', dump_name)
+        pg_dump(dump_format, db_name, '-f', dump_name)
     else:
         print "Error: DB engine not supported."
         return False
@@ -102,6 +104,7 @@ def backup_handler(config_file):
         upload_backup(config)
     else:
         generate_backup(config)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
