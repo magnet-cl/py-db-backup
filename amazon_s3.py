@@ -1,12 +1,17 @@
-import os
+# -*- coding: utf-8 -*-
+
+# boto
 from boto.s3.connection import S3Connection
+
+# standard library
+import os
 
 
 class AmazonS3(object):
     def __init__(self, access_key, secret_key, bucket):
-        """ Initialize the connection to amazon through the given access key.
-        Then,  open a specific bucket.
-
+        """
+        Initializes the connection to amazon through the given access key and
+        opens the given bucket.
         """
         # amazon s3 connection
         self.s3_conn = None
@@ -43,7 +48,7 @@ class AmazonS3(object):
             return False
         else:
             if verbose:
-                print "%s uploaded to amazon s3." % key
+                print "{} uploaded to amazon s3.".format(key)
 
         # original file removal
         if not keep_original and os.access(filepath, os.W_OK):
@@ -53,6 +58,6 @@ class AmazonS3(object):
                 print "I/O error, could not remove file."
             else:
                 if verbose:
-                    print "%s (original) removed" % filepath
+                    print "{} (original) removed".format(filepath)
 
         return True

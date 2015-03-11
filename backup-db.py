@@ -1,29 +1,27 @@
+# -*- coding: utf-8 -*-
+
+# sh
+from sh import pg_dump
+
+# standard library
 from ConfigParser import ConfigParser
+from ConfigParser import NoSectionError
 from distutils.dir_util import mkpath
 from distutils.errors import DistutilsFileError
-import gzip
 from os import remove
-from sh import pg_dump
-from time import gmtime, strftime
+from os.path import expanduser
+from time import gmtime
+from time import strftime
+import argparse
+import gzip
 
 from amazon_s3 import AmazonS3
 
 
-def parse_configuration():
-    """ Parses config file. """
-    config = ConfigParser()
-    config.read('config.ini')
-
-    return config
-
-
-def generate_backup():
+def generate_backup(config):
     """ Generates the database dump. """
 
     print "Generating database dump."
-
-    # configuration file
-    config = parse_configuration()
 
     # dumps folder creation
     dumps_folder = "{}/cron_db_dumps".format(expanduser('~'))
@@ -59,11 +57,8 @@ def generate_backup():
     return "{}.gz".format(dump_name)
 
 
-def upload_backup():
+def upload_backup(config):
     """ Uploads the generated dump to Amazon S3. """
-
-    # configuration file
-    config = parse_configuration()
 
     # dump generation
     dump_name = generate_backup()
@@ -86,5 +81,34 @@ def upload_backup():
         print "An error has ocurred while dumping {}".format(dump_name)
 
 
+def backup_handler(config_file):
+
+    # parses config file
+    config = ConfigParser()
+    config.read(config_file)
+
+    # check if the amazon credentials are set
+    try:
+        credentials_set = (
+            config.get('aws', 'access_key') != 'key' and
+            config.get('aws', 'secret_key') != 'secret'
+        )
+    except NoSectionError:
+        print "Invalid configuration file"
+        return False
+
+    if credentials_set:
+        upload_backup(config)
+    else:
+        generate_backup(config)
+
 if __name__ == '__main__':
-    upload_backup()
+    parser = argparse.ArgumentParser(
+        description='Backup database defined in configuration file'
+    )
+    parser.add_argument('-c', dest='config_file', default='config.ini',
+                        help='configuration file')
+
+    args = parser.parse_args()
+
+    backup_handler(args.config_file)
