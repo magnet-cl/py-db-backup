@@ -3,6 +3,7 @@
 
 # sh
 from sh import pg_dump
+from sh import mysqldump
 
 # standard library
 from ConfigParser import ConfigParser
@@ -43,6 +44,11 @@ def generate_backup(config):
     if db_engine == 'postgresql':
         dump_format = '-Fc'  # custom format
         pg_dump(dump_format, db_name, '-f', dump_name)
+    elif db_engine == 'mysql':
+        db_user = config.get('db', 'user')
+        db_password = config.get('db', 'password')
+        mysqldump('--compress', '-u', db_user, '--password={}'.format(
+            db_password), db_name, '--result-file={}'.format(dump_name))
     else:
         print "Error: DB engine not supported."
         return False
